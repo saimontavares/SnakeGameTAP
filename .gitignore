@@ -1,0 +1,22 @@
+// Java gitignore
+"*.class",
+"*.war",
+"*.ear",
+"*.jar",
+"*.zip",
+"*.tar.gz",
+"*.rar",
+"*.iml",
+"*.ipr",
+"*.iws",
+".idea/",
+".idea",
+"*.log",
+"*.ipr",
+"*.iws",
+"*.ids",
+"*.class",
+"*.pyc"
+\lib
+\bin
+\.vscode
