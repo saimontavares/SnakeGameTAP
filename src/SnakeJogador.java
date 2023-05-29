@@ -75,23 +75,34 @@ public class SnakeJogador {
                     fila.add(new Point(atual.x, atual.y-1));
                     visitado[atual.y-1][atual.x] = true;
                     campo[atual.y-1][atual.x] = campo[atual.y][atual.x] + 1;
+                    if(atual.y-1 == 0){
+                        campo[atual.y-1][atual.x]++;
+                    }
                 }
                 if(atual.y < jogo.getAltura()-1 && !visitado[atual.y+1][atual.x] && campo[atual.y+1][atual.x] == 0){
                     fila.add(new Point(atual.x, atual.y+1));
                     visitado[atual.y+1][atual.x] = true;
                     campo[atual.y+1][atual.x] = campo[atual.y][atual.x] + 1;
+                    if(atual.y+1 == jogo.getAltura()-1){
+                        campo[atual.y+1][atual.x]++;
+                    }
                 }
                 if(atual.x > 0 && !visitado[atual.y][atual.x-1] && campo[atual.y][atual.x-1] == 0){
                     fila.add(new Point(atual.x-1, atual.y));
                     visitado[atual.y][atual.x-1] = true;
                     campo[atual.y][atual.x-1] = campo[atual.y][atual.x] + 1;
+                    if(atual.x-1 == 0){
+                        campo[atual.y][atual.x-1]++;
+                    }
                 }
                 if(atual.x < jogo.getLargura()-1 && !visitado[atual.y][atual.x+1] && campo[atual.y][atual.x+1] == 0){
                     fila.add(new Point(atual.x+1, atual.y));
                     visitado[atual.y][atual.x+1] = true;
                     campo[atual.y][atual.x+1] = campo[atual.y][atual.x] + 1;
+                    if(atual.x+1 == jogo.getLargura()-1){
+                        campo[atual.y][atual.x+1]++;
+                    }
                 }
-                
                 
                 if(atual.y > 0 && !visitado[atual.y-1][atual.x] && campo[atual.y-1][atual.x] == -2){
                     campo[atual.y-1][atual.x] = campo[atual.y][atual.x] + 1;
@@ -122,26 +133,27 @@ public class SnakeJogador {
             }
             campo[comida.y][comida.x] = 0;
             Point caminhador = new Point(cabeca);
-            while(campo[caminhador.y] [caminhador.x]!= 0){
-                if(caminhador.y > 0 && campo[caminhador.y-1][caminhador.x] < campo[caminhador.y][caminhador.x] && campo[caminhador.y-1][caminhador.x] != -1){
-                    caminho.add(new Point(caminhador.x, caminhador.y-1));
-                    caminhador = new Point(caminhador.x, caminhador.y-1);
+            while(campo[caminhador.y][caminhador.x]!= 0){
+                Point possivel = null;
+                if(caminhador.y > 0 && campo[caminhador.y-1][caminhador.x] < campo[caminhador.y][caminhador.x] && campo[caminhador.y-1][caminhador.x] != -1 && (possivel == null || campo[possivel.y][possivel.x] > campo[caminhador.y-1][caminhador.x])){
+                    possivel = new Point(caminhador.x, caminhador.y-1);
+                    System.out.println(possivel);
                 }
-                else if(caminhador.y < jogo.getAltura()-1 && campo[caminhador.y+1][caminhador.x] < campo[caminhador.y][caminhador.x] && campo[caminhador.y+1][caminhador.x] != -1){
-                    caminho.add(new Point(caminhador.x, caminhador.y+1));
-                    caminhador = new Point(caminhador.x, caminhador.y+1);
+                if(caminhador.y < jogo.getAltura()-1 && campo[caminhador.y+1][caminhador.x] < campo[caminhador.y][caminhador.x] && campo[caminhador.y+1][caminhador.x] != -1 && (possivel == null || campo[possivel.y][possivel.x] > campo[caminhador.y+1][caminhador.x])){
+                    possivel = new Point(caminhador.x, caminhador.y+1);
+                    System.out.println(possivel);
                 }
-                else if(caminhador.x > 0 && campo[caminhador.y][caminhador.x-1] < campo[caminhador.y][caminhador.x] && campo[caminhador.y][caminhador.x-1] != -1){
-                    caminho.add(new Point(caminhador.x-1, caminhador.y));
-                    caminhador = new Point(caminhador.x-1, caminhador.y);
+                if(caminhador.x > 0 && campo[caminhador.y][caminhador.x-1] < campo[caminhador.y][caminhador.x] && campo[caminhador.y][caminhador.x-1] != -1 && (possivel == null || campo[possivel.y][possivel.x] > campo[caminhador.y][caminhador.x-1])){
+                    possivel = new Point(caminhador.x-1, caminhador.y);
+                    System.out.println(possivel);
                 }
-                else if(caminhador.x < jogo.getLargura()-1 && campo[caminhador.y][caminhador.x+1] < campo[caminhador.y][caminhador.x] && campo[caminhador.y][caminhador.x+1] != -1){
-                    caminho.add(new Point(caminhador.x+1, caminhador.y));
-                    caminhador = new Point(caminhador.x+1, caminhador.y);
+                if(caminhador.x < jogo.getLargura()-1 && campo[caminhador.y][caminhador.x+1] < campo[caminhador.y][caminhador.x] && campo[caminhador.y][caminhador.x+1] != -1 && (possivel == null || campo[possivel.y][possivel.x] > campo[caminhador.y][caminhador.x+1])){
+                    possivel = new Point(caminhador.x+1, caminhador.y);
                 }
-                else{
-                    System.out.println("ERRO");
-                    break;
+                if(possivel != null){
+                caminhador = new Point(possivel.x, possivel.y);
+                System.out.println(possivel);
+                caminho.add(caminhador);
                 }
             }
             imprimeCaminho();
