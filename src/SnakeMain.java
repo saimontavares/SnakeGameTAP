@@ -85,7 +85,7 @@ public class SnakeMain extends JFrame implements KeyListener {
      */
     public static void main(String[] args) {
 
-        Snake jogo = new Snake(30, 20);
+        Snake jogo = new Snake(20, 10);
         
         // Para jogar na janela usando teclado
         // SnakeMain janela = new SnakeMain(jogo);

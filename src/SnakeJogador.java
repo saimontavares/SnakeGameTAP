@@ -25,6 +25,20 @@ public class SnakeJogador {
         this.caminho = new ArrayList<Point>();
     }
 
+    void imprimirCampo(int [][] campo){
+        for (int[] is : campo) {
+            System.out.println(Arrays.toString(is));
+        }
+        System.out.println("FIM");
+    }
+
+    void imprimeCaminho(){
+        for (Point point : caminho) {
+            System.out.print(point+" ");
+        }
+        System.out.println("\nFIM");
+    }
+
     /**
      * Executado pelo método {@link Snake#inicia()} a cada 'tick' do jogo para
      * perguntar qual a próxima direção da cobra ('C'ima, 'D'ireita, 'B'aixo,
@@ -42,99 +56,100 @@ public class SnakeJogador {
         Point comida = jogo.getComida();
         
         if(caminho.isEmpty()){
-            int[][] campo = new int[jogo.getLargura()][jogo.getAltura()];
+            int[][] campo = new int[jogo.getAltura()][jogo.getLargura()];
             for (Point segmento : jogo.getSegmentos()) {
-                campo[segmento.x][segmento.y] = 1;
+                campo[segmento.y][segmento.x] = -1;
             }
-            campo[cabeca.x][cabeca.y] = 2;
+            campo[cabeca.y][cabeca.x] = -2;
             
             Queue<Point> fila = new LinkedList<Point>();
-            boolean[][] visitado = new boolean[jogo.getLargura()][jogo.getAltura()];
+            boolean[][] visitado = new boolean[jogo.getAltura()][jogo.getLargura()];
             
             fila.add(comida);
-            visitado[comida.x][comida.y] = true;
-            campo[comida.x][comida.y] = 0;
+            visitado[comida.y][comida.x] = true;
+            campo[comida.y][comida.x] = 0;
 
             while(!fila.isEmpty()){
                 Point atual = fila.remove();
-
-                if(atual.y > 0 && !visitado[atual.x][atual.y-1] && campo[atual.x][atual.y-1] == 0){
+                if(atual.y > 0 && !visitado[atual.y-1][atual.x] && campo[atual.y-1][atual.x] == 0){
                     fila.add(new Point(atual.x, atual.y-1));
-                    visitado[atual.x][atual.y-1] = true;
-                    campo[atual.x][atual.y-1] = campo[atual.x][atual.y] + 1;
+                    visitado[atual.y-1][atual.x] = true;
+                    campo[atual.y-1][atual.x] = campo[atual.y][atual.x] + 1;
                 }
-                if(atual.y < jogo.getAltura()-1 && !visitado[atual.x][atual.y+1] && campo[atual.x][atual.y+1] == 0){
+                if(atual.y < jogo.getAltura()-1 && !visitado[atual.y+1][atual.x] && campo[atual.y+1][atual.x] == 0){
                     fila.add(new Point(atual.x, atual.y+1));
-                    visitado[atual.x][atual.y+1] = true;
-                    campo[atual.x][atual.y+1] = campo[atual.x][atual.y] + 1;
+                    visitado[atual.y+1][atual.x] = true;
+                    campo[atual.y+1][atual.x] = campo[atual.y][atual.x] + 1;
                 }
-                if(atual.x > 0 && !visitado[atual.x-1][atual.y] && campo[atual.x-1][atual.y] == 0){
+                if(atual.x > 0 && !visitado[atual.y][atual.x-1] && campo[atual.y][atual.x-1] == 0){
                     fila.add(new Point(atual.x-1, atual.y));
-                    visitado[atual.x-1][atual.y] = true;
-                    campo[atual.x-1][atual.y] = campo[atual.x][atual.y] + 1;
+                    visitado[atual.y][atual.x-1] = true;
+                    campo[atual.y][atual.x-1] = campo[atual.y][atual.x] + 1;
                 }
-                if(atual.x < jogo.getLargura()-1 && !visitado[atual.x+1][atual.y] && campo[atual.x+1][atual.y] == 0){
+                if(atual.x < jogo.getLargura()-1 && !visitado[atual.y][atual.x+1] && campo[atual.y][atual.x+1] == 0){
                     fila.add(new Point(atual.x+1, atual.y));
-                    visitado[atual.x+1][atual.y] = true;
-                    campo[atual.x+1][atual.y] = campo[atual.x][atual.y] + 1;
+                    visitado[atual.y][atual.x+1] = true;
+                    campo[atual.y][atual.x+1] = campo[atual.y][atual.x] + 1;
                 }
                 
-                if(atual.y > 0 && !visitado[atual.x][atual.y-1] && campo[atual.x][atual.y-1] == 2){
-                    visitado[atual.x][atual.y-1] = true;
+                
+                if(atual.y > 0 && !visitado[atual.y-1][atual.x] && campo[atual.y-1][atual.x] == -2){
+                    campo[atual.y-1][atual.x] = campo[atual.y][atual.x] + 1;
                     break;
                 }
-                if(atual.y < jogo.getAltura()-1 && !visitado[atual.x][atual.y+1] && campo[atual.x][atual.y+1] == 2){
-                    visitado[atual.x][atual.y+1] = true;
+                if(atual.y < jogo.getAltura()-1 && !visitado[atual.y+1][atual.x] && campo[atual.y+1][atual.x] == -2){
+                    campo[atual.y+1][atual.x] = campo[atual.y][atual.x] + 1;
                     break;
                 }
-                if(atual.x > 0 && !visitado[atual.x-1][atual.y] && campo[atual.x-1][atual.y] == 2){
-                    visitado[atual.x-1][atual.y] = true;
+                if(atual.x > 0 && !visitado[atual.y][atual.x-1] && campo[atual.y][atual.x-1] == -2){
+                    campo[atual.y][atual.x-1] = campo[atual.y][atual.x] + 1;
                     break;
                 }
-                if(atual.x < jogo.getLargura()-1 && !visitado[atual.x+1][atual.y] && campo[atual.x+1][atual.y] == 2){
-                    visitado[atual.x+1][atual.y] = true;
+                if(atual.x < jogo.getLargura()-1 && !visitado[atual.y][atual.x+1] && campo[atual.y][atual.x+1] == -2){
+                    campo[atual.y][atual.x+1] = campo[atual.y][atual.x] + 1;
                     break;
                 }
+
             }
-            // backtrack for make the path
+            imprimirCampo(campo);
+            // backtrack to make the path
             for (int i = 0; i < jogo.getLargura(); i++) {
                 for (int j = 0; j < jogo.getAltura(); j++) {
-                    if(campo[i][j] == 0){
-                        campo[i][j] = Integer.MAX_VALUE;
+                    if(campo[j][i] == 0){
+                        campo[j][i] = Integer.MAX_VALUE;
                     }
                 }
             }
-            campo[comida.x][comida.y] = -1;
-            Scanner sc = new Scanner(System.in);
+            campo[comida.y][comida.x] = 0;
             Point caminhador = new Point(cabeca);
-            while(campo[caminhador.x][caminhador.y] != -1){
-                System.out.println("caminho: " + caminhador.getX()+ " " + caminhador.getY()+" "+campo[caminhador.x][caminhador.y]);
-                if(caminhador.y > 0 && campo[caminhador.x][caminhador.y-1] == campo[caminhador.x][caminhador.y] - 1){
+            while(campo[caminhador.y] [caminhador.x]!= 0){
+                if(caminhador.y > 0 && campo[caminhador.y-1][caminhador.x] < campo[caminhador.y][caminhador.x] && campo[caminhador.y-1][caminhador.x] != -1){
                     caminho.add(new Point(caminhador.x, caminhador.y-1));
                     caminhador = new Point(caminhador.x, caminhador.y-1);
                 }
-                else if(caminhador.y < jogo.getAltura()-1 && campo[caminhador.x][caminhador.y+1] == campo[caminhador.x][caminhador.y] - 1){
+                else if(caminhador.y < jogo.getAltura()-1 && campo[caminhador.y+1][caminhador.x] < campo[caminhador.y][caminhador.x] && campo[caminhador.y+1][caminhador.x] != -1){
                     caminho.add(new Point(caminhador.x, caminhador.y+1));
                     caminhador = new Point(caminhador.x, caminhador.y+1);
                 }
-                else if(caminhador.x > 0 && campo[caminhador.x-1][caminhador.y] == campo[caminhador.x][caminhador.y] - 1){
+                else if(caminhador.x > 0 && campo[caminhador.y][caminhador.x-1] < campo[caminhador.y][caminhador.x] && campo[caminhador.y][caminhador.x-1] != -1){
                     caminho.add(new Point(caminhador.x-1, caminhador.y));
                     caminhador = new Point(caminhador.x-1, caminhador.y);
                 }
-                else if(caminhador.x < jogo.getLargura()-1 && campo[caminhador.x+1][caminhador.y] == campo[caminhador.x][caminhador.y] - 1){
+                else if(caminhador.x < jogo.getLargura()-1 && campo[caminhador.y][caminhador.x+1] < campo[caminhador.y][caminhador.x] && campo[caminhador.y][caminhador.x+1] != -1){
                     caminho.add(new Point(caminhador.x+1, caminhador.y));
                     caminhador = new Point(caminhador.x+1, caminhador.y);
                 }
                 else{
                     System.out.println("ERRO");
+                    break;
                 }
-                sc.nextInt();
             }
-            sc.close();
-            System.out.println(caminho);
+            imprimeCaminho();
         }
-        direcao = caminho.get(0).x == cabeca.x ? (caminho.get(0).y > cabeca.y ? 'B' : 'C') : (caminho.get(0).x > cabeca.x ? 'D' : 'E');
-        caminho.remove(0);
+        if(!caminho.isEmpty()){
+            direcao = caminho.get(0).x == cabeca.x ? (caminho.get(0).y > cabeca.y ? 'B' : 'C') : (caminho.get(0).x > cabeca.x ? 'D' : 'E');
+            caminho.remove(0);
+        }
         return direcao;
     }
     
