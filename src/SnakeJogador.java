@@ -122,7 +122,7 @@ public class SnakeJogador {
                 }
 
             }
-            imprimirCampo(campo);
+            // imprimirCampo(campo);
             // backtrack to make the path
             for (int i = 0; i < jogo.getLargura(); i++) {
                 for (int j = 0; j < jogo.getAltura(); j++) {
@@ -134,29 +134,33 @@ public class SnakeJogador {
             campo[comida.y][comida.x] = 0;
             Point caminhador = new Point(cabeca);
             while(campo[caminhador.y][caminhador.x]!= 0){
+                System.out.println("INFINITO");
                 Point possivel = null;
                 if(caminhador.y > 0 && campo[caminhador.y-1][caminhador.x] < campo[caminhador.y][caminhador.x] && campo[caminhador.y-1][caminhador.x] != -1 && (possivel == null || campo[possivel.y][possivel.x] > campo[caminhador.y-1][caminhador.x])){
                     possivel = new Point(caminhador.x, caminhador.y-1);
-                    System.out.println(possivel);
+                    // System.out.println(possivel);
                 }
                 if(caminhador.y < jogo.getAltura()-1 && campo[caminhador.y+1][caminhador.x] < campo[caminhador.y][caminhador.x] && campo[caminhador.y+1][caminhador.x] != -1 && (possivel == null || campo[possivel.y][possivel.x] > campo[caminhador.y+1][caminhador.x])){
                     possivel = new Point(caminhador.x, caminhador.y+1);
-                    System.out.println(possivel);
+                    // System.out.println(possivel);
                 }
                 if(caminhador.x > 0 && campo[caminhador.y][caminhador.x-1] < campo[caminhador.y][caminhador.x] && campo[caminhador.y][caminhador.x-1] != -1 && (possivel == null || campo[possivel.y][possivel.x] > campo[caminhador.y][caminhador.x-1])){
                     possivel = new Point(caminhador.x-1, caminhador.y);
-                    System.out.println(possivel);
+                    // System.out.println(possivel);
                 }
                 if(caminhador.x < jogo.getLargura()-1 && campo[caminhador.y][caminhador.x+1] < campo[caminhador.y][caminhador.x] && campo[caminhador.y][caminhador.x+1] != -1 && (possivel == null || campo[possivel.y][possivel.x] > campo[caminhador.y][caminhador.x+1])){
                     possivel = new Point(caminhador.x+1, caminhador.y);
                 }
                 if(possivel != null){
-                caminhador = new Point(possivel.x, possivel.y);
-                System.out.println(possivel);
-                caminho.add(caminhador);
+                    caminhador = new Point(possivel.x, possivel.y);
+                    // System.out.println(possivel);
+                    caminho.add(caminhador);
+                }
+                else{
+                    break;
                 }
             }
-            imprimeCaminho();
+            // imprimeCaminho();
         }
         if(!caminho.isEmpty()){
             direcao = caminho.get(0).x == cabeca.x ? (caminho.get(0).y > cabeca.y ? 'B' : 'C') : (caminho.get(0).x > cabeca.x ? 'D' : 'E');
