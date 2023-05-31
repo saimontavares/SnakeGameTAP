@@ -93,15 +93,43 @@ public class SnakeJogador {
                     campo[y][x+1] = campo[y][x] + 1;
                 }
             }
-            imprimeCampo(campo);
-            if(visitado[cabeca.y][cabeca.x]){
+            // imprimeCampo(campo);
+            System.out.println(visitado[cabeca.y][cabeca.x]);
+            if(visitado[cabeca.y][cabeca.x]){ // verifica se o tem um caminho possível para a comida
                 // montar caminho
-                // while()
+                Point atual = cabeca;
+                while(!atual.equals(comida)){
+                    int x = atual.x;
+                    int y = atual.y;
+                    if(y > 0 && campo[y-1][x] == campo[y][x] - 1){
+                        caminho.add(new Point(x, y-1));
+                        atual = new Point(x, y-1);
+                    }
+                    else if(y < jogo.getAltura()-1 && campo[y+1][x] == campo[y][x] - 1){
+                        caminho.add(new Point(x, y+1));
+                        atual = new Point(x, y+1);
+                    }
+                    else if(x > 0 && campo[y][x-1] == campo[y][x] - 1){
+                        caminho.add(new Point(x-1, y));
+                        atual = new Point(x-1, y);
+                    }
+                    else if(x < jogo.getLargura()-1 && campo[y][x+1] == campo[y][x] - 1){
+                        caminho.add(new Point(x+1, y));
+                        atual = new Point(x+1, y);
+                    }
+                    else{
+                        System.out.println("Prox. direcao nao encontrada.");
+                        break;
+                    }
+                }
             }
         }
-        if(!caminho.isEmpty()){
-
+        if(caminho.size() > 0){
+            System.out.println("Caminho: "+caminho.toString());
+            direcao = caminho.get(0).x == cabeca.x ? (caminho.get(0).y > cabeca.y ? 'B' : 'C') : (caminho.get(0).x > cabeca.x ? 'D' : 'E');
+            caminho.remove(0);
         }
+        System.out.println("Direcao: "+direcao);
         return direcao;
     }
     

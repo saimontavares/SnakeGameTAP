@@ -95,17 +95,17 @@ public class SnakeMain extends JFrame implements KeyListener {
 
 
         // Para jogar na janela usando o jogador implementado
-        SnakeJogador jogador = new SnakeJogador(jogo);
-        SnakeMain janela = new SnakeMain(jogo);
-        jogo.setSaida(janela);
-        jogo.setJogador(jogador);
-        jogo.inicia();
-
-        // Para jogar sem janela usando o jogador implementado (correção do trabalho) 
         // SnakeJogador jogador = new SnakeJogador(jogo);
-        // jogo.setSaida(null);
+        // SnakeMain janela = new SnakeMain(jogo);
+        // jogo.setSaida(janela);
         // jogo.setJogador(jogador);
         // jogo.inicia();
+
+        // Para jogar sem janela usando o jogador implementado (correção do trabalho) 
+        SnakeJogador jogador = new SnakeJogador(jogo);
+        jogo.setSaida(null);
+        jogo.setJogador(jogador);
+        jogo.inicia();
 
     }
 
