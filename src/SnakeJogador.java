@@ -93,7 +93,7 @@ public class SnakeJogador {
                     campo[y][x+1] = campo[y][x] + 1;
                 }
             }
-            // imprimeCampo(campo);
+            imprimeCampo(campo);
             System.out.println(visitado[cabeca.y][cabeca.x]);
             if(visitado[cabeca.y][cabeca.x]){ // verifica se o tem um caminho possível para a comida
                 // montar caminho
@@ -124,9 +124,8 @@ public class SnakeJogador {
                 }
             }
         }
-        if(caminho.size() > 0){
-            System.out.println("Caminho: "+caminho.toString());
-            direcao = caminho.get(0).x == cabeca.x ? (caminho.get(0).y > cabeca.y ? 'B' : 'C') : (caminho.get(0).x > cabeca.x ? 'D' : 'E');
+        if(!caminho.isEmpty()){
+            direcao = caminho.get(0).x == cabeca.x ? (caminho.get(0).y == cabeca.y-1? 'C' : (caminho.get(0).y == cabeca.y+1? 'B' : 'N')) : (caminho.get(0).y == cabeca.y?  (caminho.get(0).x == cabeca.x-1 ? 'E' : (caminho.get(0).x == cabeca.x+1 ? 'D' : 'N')) : 'N'); 
             caminho.remove(0);
         }
         System.out.println("Direcao: "+direcao);
