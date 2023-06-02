@@ -25,9 +25,29 @@ public class SnakeJogador {
         this.caminho = new ArrayList<Point>();
     }
 
-    void imprimirCampo(int [][] campo){
-        for (int[] is : campo) {
-            System.out.println(Arrays.toString(is));
+    boolean isValido(int x, int y){
+        return x >= 0 && x < jogo.getAltura() && y >= 0 && y < jogo.getLargura();
+    }
+
+    boolean ehLivre(int[][] campo, int x, int y){
+        return isValido(x, y) && campo[y][x] == 0;
+    }
+
+    boolean isDestino(int i, int j, Point destino){
+        return i == destino.y && j == destino.x;
+    }
+
+    double calculaH(int linha, int coluna, Point destino){
+        // Método de distância de Manhattan
+        return Math.abs(linha - destino.x) + Math.abs(coluna - destino.y);
+    }
+
+    void imprimirCampo(Celula [][] campo){
+        for (Celula[] is : campo) {
+            for (Celula i : is) {
+                System.out.print(i+" ");
+            }
+            System.out.println();
         }
         System.out.println("FIM");
     }
@@ -37,6 +57,22 @@ public class SnakeJogador {
             System.out.print(point+" ");
         }
         System.out.println("\nFIM");
+    }
+
+    List<Point> criaCaminho(Celula [][] campo, Point destino){
+        List<Point> caminho = new ArrayList<>();
+        int linha = destino.x;
+        int coluna = destino.y;
+        while(!(campo[linha][coluna].parent_i == linha && campo[linha][coluna].parent_j == coluna)){
+            caminho.add(new Point(coluna, linha));
+            int temp_i = campo[linha][coluna].parent_i;
+            int temp_j = campo[linha][coluna].parent_j;
+            linha = temp_i;
+            coluna = temp_j;
+        }
+        caminho.add(new Point(coluna, linha));
+        Collections.reverse(caminho);
+        return caminho;
     }
 
     /**
@@ -54,119 +90,156 @@ public class SnakeJogador {
 
         Point cabeca = jogo.getSegmentos().get(0);
         Point comida = jogo.getComida();
-        
         if(caminho.isEmpty()){
-            int[][] campo = new int[jogo.getAltura()][jogo.getLargura()];
-            for (Point segmento : jogo.getSegmentos()) {
-                campo[segmento.y][segmento.x] = -1;
+            // Construir campo
+            int campo[][] = new int[jogo.getAltura()][jogo.getLargura()];
+            for(Point p : jogo.getSegmentos()){
+                campo[p.y][p.x] = 1;
             }
-            campo[cabeca.y][cabeca.x] = -2;
-            
-            Queue<Point> fila = new LinkedList<Point>();
-            boolean[][] visitado = new boolean[jogo.getAltura()][jogo.getLargura()];
-            
-            fila.add(comida);
-            visitado[comida.y][comida.x] = true;
-            campo[comida.y][comida.x] = 0;
-
-            while(!fila.isEmpty()){
-                Point atual = fila.remove();
-                if(atual.y > 0 && !visitado[atual.y-1][atual.x] && campo[atual.y-1][atual.x] == 0){
-                    fila.add(new Point(atual.x, atual.y-1));
-                    visitado[atual.y-1][atual.x] = true;
-                    campo[atual.y-1][atual.x] = campo[atual.y][atual.x] + 1;
-                    if(atual.y-1 == 0){
-                        campo[atual.y-1][atual.x]++;
+            Celula [][] celulas = new Celula[jogo.getAltura()][jogo.getLargura()];
+            imprimirCampo(celulas);
+            // A*Star pathfiding
+            // Start closed list
+            boolean [][] closedList = new boolean[jogo.getAltura()][jogo.getLargura()];
+            // Start open list with the starting point
+            HashMap<Double, Point> openList = new HashMap<>();
+            openList.put(0.0, cabeca);
+            Boolean achouComida = false;
+            while(!openList.isEmpty()){
+                Point atual = openList.remove(openList.keySet().iterator().next());
+                int i = atual.y;
+                int j = atual.x;
+                closedList[i][j] = true;
+                double novoG, novoH, novoF;
+                // Pra cima
+                if(isValido(i-1, j)){
+                    if(isDestino(i-1, j, comida)){
+                        celulas[i-1][j].parent_i = i;
+                        celulas[i-1][j].parent_j = j;
+                        criaCaminho(celulas, comida);
+                        achouComida = true;
+                        break;
+                    }
+                    else if(!closedList[i + 1][j] && ehLivre(campo, i-1, j)){
+                        novoG = celulas[i][j].g + 1;
+                        novoH = calculaH(i-1, j, comida);
+                        novoF = novoG + novoH;
+                        if(celulas[i-1][j].f == Float.MAX_VALUE || celulas[i-1][j].f > novoF){
+                            openList.put(novoF, new Point(j, i-1));
+                            celulas[i-1][j].f = novoF;
+                            celulas[i-1][j].g = novoG;
+                            celulas[i-1][j].h = novoH;
+                            celulas[i-1][j].parent_i = i;
+                            celulas[i-1][j].parent_j = j;
+                        }
                     }
                 }
-                if(atual.y < jogo.getAltura()-1 && !visitado[atual.y+1][atual.x] && campo[atual.y+1][atual.x] == 0){
-                    fila.add(new Point(atual.x, atual.y+1));
-                    visitado[atual.y+1][atual.x] = true;
-                    campo[atual.y+1][atual.x] = campo[atual.y][atual.x] + 1;
-                    if(atual.y+1 == jogo.getAltura()-1){
-                        campo[atual.y+1][atual.x]++;
+                // Pra baixo
+                if(isValido(i+1, j)){
+                    if(isDestino(i+1, j, comida)){
+                        celulas[i+1][j].parent_i = i;
+                        celulas[i+1][j].parent_j = j;
+                        criaCaminho(celulas, comida);
+                        achouComida = true;
+                        break;
+                    }
+                    else if(!closedList[i + 1][j] && ehLivre(campo, i+1, j)){
+                        novoG = celulas[i][j].g + 1;
+                        novoH = calculaH(i+1, j, comida);
+                        novoF = novoG + novoH;
+                        if(celulas[i+1][j].f == Float.MAX_VALUE || celulas[i+1][j].f > novoF){
+                            openList.put(novoF, new Point(j, i+1));
+                            celulas[i+1][j].f = novoF;
+                            celulas[i+1][j].g = novoG;
+                            celulas[i+1][j].h = novoH;
+                            celulas[i+1][j].parent_i = i;
+                            celulas[i+1][j].parent_j = j;
+                        }
                     }
                 }
-                if(atual.x > 0 && !visitado[atual.y][atual.x-1] && campo[atual.y][atual.x-1] == 0){
-                    fila.add(new Point(atual.x-1, atual.y));
-                    visitado[atual.y][atual.x-1] = true;
-                    campo[atual.y][atual.x-1] = campo[atual.y][atual.x] + 1;
-                    if(atual.x-1 == 0){
-                        campo[atual.y][atual.x-1]++;
+                // Pra esquerda
+                if(isValido(i, j-1)){
+                    if(isDestino(i, j-1, comida)){
+                        celulas[i][j-1].parent_i = i;
+                        celulas[i][j-1].parent_j = j;
+                        criaCaminho(celulas, comida);
+                        achouComida = true;
+                        break;
+                    }
+                    else if(!closedList[i][j - 1] && ehLivre(campo, i, j-1)){
+                        novoG = celulas[i][j].g + 1;
+                        novoH = calculaH(i, j-1, comida);
+                        novoF = novoG + novoH;
+                        if(celulas[i][j-1].f == Float.MAX_VALUE || celulas[i][j-1].f > novoF){
+                            openList.put(novoF, new Point(j-1, i));
+                            celulas[i][j-1].f = novoF;
+                            celulas[i][j-1].g = novoG;
+                            celulas[i][j-1].h = novoH;
+                            celulas[i][j-1].parent_i = i;
+                            celulas[i][j-1].parent_j = j;
+                        }
                     }
                 }
-                if(atual.x < jogo.getLargura()-1 && !visitado[atual.y][atual.x+1] && campo[atual.y][atual.x+1] == 0){
-                    fila.add(new Point(atual.x+1, atual.y));
-                    visitado[atual.y][atual.x+1] = true;
-                    campo[atual.y][atual.x+1] = campo[atual.y][atual.x] + 1;
-                    if(atual.x+1 == jogo.getLargura()-1){
-                        campo[atual.y][atual.x+1]++;
+                // Pra direita
+                if(isValido(i, j+1)){
+                    if(isDestino(i, j+1, comida)){
+                        celulas[i][j+1].parent_i = i;
+                        celulas[i][j+1].parent_j = j;
+                        criaCaminho(celulas, comida);
+                        achouComida = true;
+                        break;
+                    }
+                    else if(!closedList[i][j + 1] && ehLivre(campo, i, j+1)){
+                        novoG = celulas[i][j].g + 1;
+                        novoH = calculaH(i, j+1, comida);
+                        novoF = novoG + novoH;
+                        if(celulas[i][j+1].f == Float.MAX_VALUE || celulas[i][j+1].f > novoF){
+                            openList.put(novoF, new Point(j+1, i));
+                            celulas[i][j+1].f = novoF;
+                            celulas[i][j+1].g = novoG;
+                            celulas[i][j+1].h = novoH;
+                            celulas[i][j+1].parent_i = i;
+                            celulas[i][j+1].parent_j = j;
+                        }
                     }
                 }
-                
-                if(atual.y > 0 && !visitado[atual.y-1][atual.x] && campo[atual.y-1][atual.x] == -2){
-                    campo[atual.y-1][atual.x] = campo[atual.y][atual.x] + 1;
-                    break;
+                if(!achouComida){
+                    System.out.println("Não achou comida");
                 }
-                if(atual.y < jogo.getAltura()-1 && !visitado[atual.y+1][atual.x] && campo[atual.y+1][atual.x] == -2){
-                    campo[atual.y+1][atual.x] = campo[atual.y][atual.x] + 1;
-                    break;
-                }
-                if(atual.x > 0 && !visitado[atual.y][atual.x-1] && campo[atual.y][atual.x-1] == -2){
-                    campo[atual.y][atual.x-1] = campo[atual.y][atual.x] + 1;
-                    break;
-                }
-                if(atual.x < jogo.getLargura()-1 && !visitado[atual.y][atual.x+1] && campo[atual.y][atual.x+1] == -2){
-                    campo[atual.y][atual.x+1] = campo[atual.y][atual.x] + 1;
-                    break;
-                }
-
             }
-            // imprimirCampo(campo);
-            // backtrack to make the path
-            for (int i = 0; i < jogo.getLargura(); i++) {
-                for (int j = 0; j < jogo.getAltura(); j++) {
-                    if(campo[j][i] == 0){
-                        campo[j][i] = Integer.MAX_VALUE;
-                    }
-                }
-            }
-            campo[comida.y][comida.x] = 0;
-            Point caminhador = new Point(cabeca);
-            while(campo[caminhador.y][caminhador.x]!= 0){
-                System.out.println("INFINITO");
-                Point possivel = null;
-                if(caminhador.y > 0 && campo[caminhador.y-1][caminhador.x] < campo[caminhador.y][caminhador.x] && campo[caminhador.y-1][caminhador.x] != -1 && (possivel == null || campo[possivel.y][possivel.x] > campo[caminhador.y-1][caminhador.x])){
-                    possivel = new Point(caminhador.x, caminhador.y-1);
-                    // System.out.println(possivel);
-                }
-                if(caminhador.y < jogo.getAltura()-1 && campo[caminhador.y+1][caminhador.x] < campo[caminhador.y][caminhador.x] && campo[caminhador.y+1][caminhador.x] != -1 && (possivel == null || campo[possivel.y][possivel.x] > campo[caminhador.y+1][caminhador.x])){
-                    possivel = new Point(caminhador.x, caminhador.y+1);
-                    // System.out.println(possivel);
-                }
-                if(caminhador.x > 0 && campo[caminhador.y][caminhador.x-1] < campo[caminhador.y][caminhador.x] && campo[caminhador.y][caminhador.x-1] != -1 && (possivel == null || campo[possivel.y][possivel.x] > campo[caminhador.y][caminhador.x-1])){
-                    possivel = new Point(caminhador.x-1, caminhador.y);
-                    // System.out.println(possivel);
-                }
-                if(caminhador.x < jogo.getLargura()-1 && campo[caminhador.y][caminhador.x+1] < campo[caminhador.y][caminhador.x] && campo[caminhador.y][caminhador.x+1] != -1 && (possivel == null || campo[possivel.y][possivel.x] > campo[caminhador.y][caminhador.x+1])){
-                    possivel = new Point(caminhador.x+1, caminhador.y);
-                }
-                if(possivel != null){
-                    caminhador = new Point(possivel.x, possivel.y);
-                    // System.out.println(possivel);
-                    caminho.add(caminhador);
-                }
-                else{
-                    break;
-                }
-            }
-            // imprimeCaminho();
         }
         if(!caminho.isEmpty()){
-            direcao = caminho.get(0).x == cabeca.x ? (caminho.get(0).y > cabeca.y ? 'B' : 'C') : (caminho.get(0).x > cabeca.x ? 'D' : 'E');
-            caminho.remove(0);
+            Point proximo = caminho.remove(0);
+            if(proximo.x == cabeca.x){
+                if(proximo.y == cabeca.y+1){
+                    direcao = 'D';
+                }else{
+                    direcao = 'E';
+                }
+            }else{
+                if(proximo.x == cabeca.x+1){
+                    direcao = 'B';
+                }else{
+                    direcao = 'C';
+                }
+            }
         }
         return direcao;
     }
     
+    class Celula{
+        int parent_i, parent_j;
+        double f, g, h;
+        Celula(){
+            this.parent_i = -1;
+            this.parent_j = -1;
+            this.f = Float.MAX_VALUE;
+            this.g = Float.MAX_VALUE;
+            this.h = Float.MAX_VALUE;
+        }
+        @Override
+        public String toString() {
+            return "f:" + f + ", g:" + g + ", h:" + h+"parent_i:"+parent_i+", parent_j:"+parent_j;
+        }
+    }
 }
